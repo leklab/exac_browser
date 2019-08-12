@@ -12,8 +12,10 @@ import sys
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
-from flask.ext.compress import Compress
-from flask.ext.runner import Runner
+#from flask.ext.compress import Compress
+#from flask.ext.runner import Runner
+from flask_compress import Compress
+from flask_runner import Runner
 from flask_errormail import mail_on_500
 
 from flask import Response
@@ -276,7 +278,9 @@ def load_gene_models():
     # and now transcripts
     start_time = time.time()
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
-        db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
+        for transcript in get_transcripts_from_gencode_gtf(gtf_file):
+            db.transcripts.insert(transcript)
+        #db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
     print 'Done loading transcripts. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
@@ -287,7 +291,9 @@ def load_gene_models():
     # Building up gene definitions
     start_time = time.time()
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
-        db.exons.insert((exon for exon in get_exons_from_gencode_gtf(gtf_file)), w=0)
+        #db.exons.insert((exon for exon in get_exons_from_gencode_gtf(gtf_file)), w=0)
+        db.exons.insert((exon for exon in get_exons_from_gencode_gtf(gtf_file)))
+
     print 'Done loading exons. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
