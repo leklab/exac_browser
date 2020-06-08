@@ -5,6 +5,7 @@ import re
 import traceback
 from utils import *
 import copy
+import gzip
 
 POPS = {
     'AFR': 'African',
@@ -233,6 +234,18 @@ def get_genes_from_gencode_gtf(gtf_file):
 
 
 def get_transcripts_from_gencode_gtf(gtf_file):
+
+    gtex_file = gzip.open('/home/ubuntu/data/GTEx_Analysis_2016-01-15_v7_RSEMv1.2.22_transcript_tpm_medians_by_tissue_wo_versions.tsv.gz','rt')
+
+    header = gtex_file.readline()
+
+    gtex_transcripts = {}
+
+    for line in gtex_file:
+        fields = line.strip('\n').split('\t')
+        #print("%s\t%s" % (fields[0], fields[1]))
+        gtex_transcripts[fields[1]] = fields[0]
+
     """
     Parse gencode GTF file;
     Returns iter of transcript dicts
@@ -250,8 +263,11 @@ def get_transcripts_from_gencode_gtf(gtf_file):
         stop = int(fields[4]) + 1
         info = dict(x.strip().split() for x in fields[8].split(';') if x != '')
         info = {k: v.strip('"') for k, v in info.items()}
-        transcript_id = info['transcript_id'].split('.')[0]
         gene_id = info['gene_id'].split('.')[0]
+        transcript_id = info['transcript_id'].split('.')[0]
+
+        if transcript_id not in gtex_transcripts:
+            continue
 
         gene = {
             'transcript_id': transcript_id,
@@ -267,6 +283,18 @@ def get_transcripts_from_gencode_gtf(gtf_file):
 
 
 def get_exons_from_gencode_gtf(gtf_file):
+
+    gtex_file = gzip.open('/home/ubuntu/data/GTEx_Analysis_2016-01-15_v7_RSEMv1.2.22_transcript_tpm_medians_by_tissue_wo_versions.tsv.gz','rt')
+
+    header = gtex_file.readline()
+
+    gtex_transcripts = {}
+
+    for line in gtex_file:
+        fields = line.strip('\n').split('\t')
+        #print("%s\t%s" % (fields[0], fields[1]))
+        gtex_transcripts[fields[1]] = fields[0]
+
     """
     Parse gencode GTF file;
     Returns iter of transcript dicts
@@ -285,8 +313,11 @@ def get_exons_from_gencode_gtf(gtf_file):
         stop = int(fields[4]) + 1
         info = dict(x.strip().split() for x in fields[8].split(';') if x != '')
         info = {k: v.strip('"') for k, v in info.items()}
-        transcript_id = info['transcript_id'].split('.')[0]
         gene_id = info['gene_id'].split('.')[0]
+        transcript_id = info['transcript_id'].split('.')[0]
+
+        if transcript_id not in gtex_transcripts:
+            continue
 
         exon = {
             'feature_type': feature_type,
